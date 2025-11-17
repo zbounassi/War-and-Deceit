@@ -1,0 +1,17 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lua",
+            "request": "launch",
+            "name": "Debug: notes.lua",
+            "program": "${workspaceFolder}/cards.lua"
+        },
+        {
+            "type": "lua",
+            "request": "launch",
+            "name": "Debug: main.lua",
+            "program": "${workspaceFolder}/main.lua"
+        }
+    ]
+}
