@@ -8,25 +8,27 @@ Suits = {"Hearts", "Diamonds", "Spades", "Clubs"}
 Card = {
     rank = "",
     suit = "",
-    cardImg = ""
+    cardImg = "",
+    cardVal = number
 }
 
 Card.__index = Card
 
 -- Constructor definition that will grant the information and image linking to a card
-function Card:new(rank, suit)
+function Card:new(rank, suit, cardValue)
     local imagePath = "assets/cards/" .. rank .. "_of_" .. suit .. ".png"
     local card = {
         rank = rank, 
         suit = suit,
         -- image = love.graphics.newImage(imagePath)
+        cardVal = cardValue
     }
     setmetatable(card, Card)
     return card
 end
 
 function Card:printCard()
-    print(self.rank .. " of " .. self.suit)
+    return (self.rank .. " of " .. self.suit)
 end
 
 -- Deck declaration (maybe need more in here)
@@ -53,12 +55,14 @@ end
 -- Function to make a deck with all cards (not currently working)
 function Deck:makeDeck()
     local deckCt = 1
+    local crtRank = 2
     for i,v in ipairs(Ranks) do 
         for l, p in ipairs(Suits) do
-            local card = Card:new(Ranks[i], Suits[l])
+            local card = Card:new(Ranks[i], Suits[l], crtRank)
             self.cards[deckCt] = card
             deckCt = deckCt + 1
         end
+        crtRank = crtRank + 1
         self.length = deckCt - 1
         self.crtCard = 1
     end
@@ -115,6 +119,33 @@ function Deck:splitDeck()
     return half1, half2
 end
 
+-- Function to deal the top card from a deck
+function Deck:dealCard()
+    local dealtCard = self.cards[1]
+    local lastCard = self.length
+    for i,v in ipairs(self.cards) do
+        self.cards[i] = self.cards[i + 1]
+    end
+    self.length = self.length - 1
+    self.cards[lastCard] = nil
+    return dealtCard
+end
+
+-- Function to compare the value of given cards
+local function compareCards(p1Card, p2Card)
+    if(p1Card.cardVal > p2Card.cardVal) then
+        print("\nPlayer 1 Wins! Their card " .. p1Card:printCard() .. " is greater than the " .. p2Card:printCard())
+        --p1Win()
+    elseif (p1Card.cardVal < p2Card.cardVal) then
+        print("\nPlayer 2 Wins! Their card " .. p2Card:printCard() .. " is greater than the " .. p1Card:printCard())
+        --p2Win()
+    else
+        print("\nThe cards have the same value, initiating a round of War!")
+        --playWar()
+    end
+end
+
+
 -- Creates a Deck named testDeck
 local testDeck = Deck:new()
 
@@ -124,23 +155,42 @@ local testDeck = Deck:new()
 
 testDeck:makeDeck()
 
---[[
+--[[ 
+while(testDeck.length > 0) do
+    local printCrd = testDeck:dealCard()
+    printCrd:printCard()
+end
 
-The split function is working as intended
+print('checking the nil status of the deck after that')
+
+testDeck:printDeck()
+
+]]--
+
+-- print("\nTesting the shuffle deck function\n")
+
+local shuff, testDeck = testDeck:shuffleDeck()
+-- shuff:printDeck()
+
+-- The split function is working as intended
 
 local split1 = Deck:new()
 local split2 = Deck:new()
 
-split1, split2 = testDeck:splitDeck()
+split1, split2 = shuff:splitDeck()
 
-split1:printDeck()
+-- split1:printDeck()
 
-print("\n this is the point between 1 and 2 \n ")
+-- print("\n this is the point between 1 and 2 \n ")
 
-split2:printDeck()
-]]--
+-- split2:printDeck()
 
-print("\nTesting the shuffle deck function\n")
+local passes = 20
+while(passes > 0) do
+    local p1Card = split1:dealCard()
+    local p2Card = split2:dealCard()
+    compareCards(p1Card, p2Card)
+    passes = passes - 1
+end
 
-local shuff, testDeck = testDeck:shuffleDeck()
-shuff:printDeck()
+
