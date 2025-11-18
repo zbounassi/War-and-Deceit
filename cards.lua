@@ -75,7 +75,24 @@ end
 
 -- Function to shuffle the order of cards in a deck
 function Deck:shuffleDeck()
+    math.randomseed()
+    local holderDeck = Deck:new()
+    local cards = 52
+    local rand = 0
+    local i = 1
 
+    while(cards > 0) do
+        rand = math.random(cards)
+        holderDeck.cards[i] = self.cards[rand]
+        while(rand <= cards) do
+            self.cards[rand] = self.cards[rand + 1]
+            rand = rand + 1
+        end
+        i = i + 1
+        cards = cards - 1
+    end
+    
+    return holderDeck
 end
 
 -- Function to split a deck of cards into two halves
@@ -100,15 +117,19 @@ end
 
 -- Creates a Deck named testDeck
 local testDeck = Deck:new()
-local split1 = Deck:new()
-local split2 = Deck:new()
 
--- Counter to be used in the function (placeholder)
--- local deckCt = 1
+-- local testCard = Card:new("Ace", "Diamonds")
 
+-- testCard:printCard() 
 
 testDeck:makeDeck()
--- testDeck:printDeck()
+
+--[[
+
+The split function is working as intended
+
+local split1 = Deck:new()
+local split2 = Deck:new()
 
 split1, split2 = testDeck:splitDeck()
 
@@ -117,7 +138,9 @@ split1:printDeck()
 print("\n this is the point between 1 and 2 \n ")
 
 split2:printDeck()
+]]--
 
--- local testCard = Card:new("Ace", "Diamonds")
+print("\nTesting the shuffle deck function\n")
 
--- testCard:printCard() 
+local shuff, testDeck = testDeck:shuffleDeck()
+shuff:printDeck()
