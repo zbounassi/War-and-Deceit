@@ -9,7 +9,7 @@ Card = {
     rank = "",
     suit = "",
     cardImg = "",
-    cardVal = number
+    cardVal = 0
 }
 
 Card.__index = Card
@@ -47,7 +47,7 @@ function Deck:new()
         crtCard = 0,
         cards = {}
     }
-    self.cards[0] = {"placeHolder"}
+
     setmetatable(newDeck, Deck)
     return newDeck
 end
@@ -72,7 +72,7 @@ end
 -- Function to print all cards in the deck
 function Deck:printDeck()
     for i,v in ipairs(self.cards) do
-        self.cards[i]:printCard()
+        print(self.cards[i]:printCard())
     end    
 end
 
@@ -103,19 +103,18 @@ end
 function Deck:splitDeck()
     local half1 = Deck:new()
     local half2 = Deck:new()
-    local ctOne = 1 
-    local ctTwo = 1
+    half1.length = 0 
+    half2.length = 0
     
     for i,v in ipairs(self.cards) do
         if(i % 2 == 0) then
-            half2.cards[ctTwo] = self.cards[i]
-            ctTwo = ctTwo + 1
+            half2.length = half2.length + 1
+            half2.cards[half2.length] = self.cards[i]
         else
-            half1.cards[ctOne] = self.cards[i]
-            ctOne = ctOne + 1
+            half1.length = half1.length + 1
+            half1.cards[half1.length] = self.cards[i]
         end
     end
-
     return half1, half2
 end
 
@@ -131,20 +130,69 @@ function Deck:dealCard()
     return dealtCard
 end
 
+--[[
+    Block that will handle the creation of all decks to be used
+    in the running of war. 
+    Not currently operating as intended.
+]]--
+local startDeck = Deck:new()
+startDeck:makeDeck()
+startDeck = startDeck:shuffleDeck()
+
+-- startDeck:printDeck()
+
+P1Deck = Deck:new()
+P2Deck = Deck:new()
+
+P1Deck, P2Deck = startDeck:splitDeck()
+
+P1WinPile = Deck:new()
+P2WinPile = Deck:new()
+PlayArea = Deck:new()
+
+
+
 -- Function to compare the value of given cards
 local function compareCards(p1Card, p2Card)
     if(p1Card.cardVal > p2Card.cardVal) then
-        print("\nPlayer 1 Wins! Their card " .. p1Card:printCard() .. " is greater than the " .. p2Card:printCard())
-        --p1Win()
+        P1Win(p1Card, p2Card)
     elseif (p1Card.cardVal < p2Card.cardVal) then
-        print("\nPlayer 2 Wins! Their card " .. p2Card:printCard() .. " is greater than the " .. p1Card:printCard())
-        --p2Win()
+        P2Win(p1Card, p2Card)
     else
-        print("\nThe cards have the same value, initiating a round of War!")
-        --playWar()
+        PlayWar()
     end
 end
 
+-- Function to handle the condition that p1 won the given play
+function P1Win(p1Card, p2Card)
+    print("\nPlayer 1 Wins! Their card " .. p1Card:printCard() .. " is greater than the " .. p2Card:printCard())
+    P1WinPile.cards[P1WinPile.length] = p1Card
+    P1WinPile.cards[P1WinPile.length + 1] = p2Card
+    P1WinPile.length = P1WinPile.length + 2
+end
+
+-- Function to handle the condition that p2 won the given play
+function P2Win(p1Card, p2Card)
+    print("\nPlayer 2 Wins! Their card " .. p2Card:printCard() .. " is greater than the " .. p1Card:printCard())
+    P2WinPile.cards[P2WinPile.length] = p1Card
+    P2WinPile.cards[P2WinPile.length + 1] = p2Card
+    P2WinPile.length = P2WinPile.length + 2
+end
+
+function PlayWar()
+    print("\nThe cards have the same value, initiating a round of War!")
+    for i = 1, 3 do
+       PlayArea[PlayArea.length] = P1Deck:dealCard()
+       PlayArea.length = PlayArea.length + 1
+    end
+    for i = 1, 3 do
+        PlayArea[PlayArea.length] = P2Deck:dealCard()
+       PlayArea.length = PlayArea.length + 1
+    end
+    compareCards(P1Deck:dealCard(), P2Deck:dealCard())
+end
+
+--[[
 
 -- Creates a Deck named testDeck
 local testDeck = Deck:new()
@@ -155,17 +203,18 @@ local testDeck = Deck:new()
 
 testDeck:makeDeck()
 
---[[ 
+testDeck:printDeck()
+
+ 
 while(testDeck.length > 0) do
     local printCrd = testDeck:dealCard()
     printCrd:printCard()
 end
 
+
+
 print('checking the nil status of the deck after that')
 
-testDeck:printDeck()
-
-]]--
 
 -- print("\nTesting the shuffle deck function\n")
 
@@ -185,6 +234,9 @@ split1, split2 = shuff:splitDeck()
 
 -- split2:printDeck()
 
+]]--
+
+--[[
 local passes = 20
 while(passes > 0) do
     local p1Card = split1:dealCard()
@@ -192,5 +244,33 @@ while(passes > 0) do
     compareCards(p1Card, p2Card)
     passes = passes - 1
 end
+]]--
 
+--[[
+
+    Block to handle the execution of the war game. 
+    Not currently operating as intended.
+
+P1Deck:printDeck()
+
+print("\n\nDeck two\n\n")
+
+P2Deck:printDeck()
+
+]]--
+
+while(P1Deck.length > 0 and P2Deck.length > 0) do
+    local p1Card = P1Deck:dealCard()
+    local p2Card = P2Deck:dealCard()
+    print("\nWe are now comparing " .. p1Card:printCard() .. " and " .. p2Card:printCard())
+    compareCards(p1Card, p2Card)
+end
+
+
+-- Check the status of the win piles
+P1WinPile:printDeck()
+
+print("\nOnto P2's pile\n")
+
+P2WinPile:printDeck()
 
